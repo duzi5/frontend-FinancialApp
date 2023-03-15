@@ -17,10 +17,10 @@ export default (props) => {
         <FaSearch />
       </Link>
       <Link>
-        <AiFillHome />
+        <AiFillHome to={'/dashboard2'}/>
       </Link>
       <Link>
-        <AiFillFlag />
+        <AiFillFlag  />
       </Link>
       <Link to={'/dashboard'}>
         <AiFillPieChart />
