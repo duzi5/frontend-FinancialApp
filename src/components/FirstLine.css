@@ -1,0 +1,85 @@
+.first-line {
+    margin-bottom: 20px;
+  min-height: 50px;
+  max-height: fit-content;
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgb(230, 230, 230);
+}
+
+.yourcompany {
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  display: flex;
+}
+
+.yourcompany h3 {
+  font-size: larger;
+  margin: auto;
+  color: rgb(44, 45, 46);
+  margin-left: 15px;
+}
+
+
+#bolinha-do-sino{
+    width: 13px;
+    height: 13px;
+    background-color: #D9C58B;
+    color: #ddd;
+    font-size: 0.6rem;
+    border-radius: 50%;
+    position: absolute;
+    top: 7px;
+    right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+}
+
+
+.notificacoes{
+    position: relative;
+    width: fit-content;
+    min-width: 55px;
+    font-size: 1.5rem;
+    color: #555;
+}
+
+.profile-infos{
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: flex-end;
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.circulo{
+    width: 50px;
+    height:50px;
+    border-radius: 25px;
+    background-color:#ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.profile-infos span{ 
+    font-size: 0.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.nomedescricao{
+    margin-top: 5px;
+}
+
+#person{
+    color: #ddd;
+}

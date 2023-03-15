@@ -1,0 +1,52 @@
+.listitem{
+    background-color:#D9C58B;
+    color: rgb(255, 255, 255);
+
+}
+
+
+.list-item{
+  border: 2px solid #ddd;
+    height: 80px;
+  border-radius: 14px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 7%;
+    flex-grow: 1;
+ margin-bottom: 20px;
+
+
+}
+.list-item:hover{
+  background-color: rgb(205, 205, 205);
+}
+
+.list-item h2 {
+  font-size: 24px;
+  position: absolute;
+  top: 24%;
+  right: 10%;
+}
+.list-item p {
+  font-size: 0.8rem;
+  line-height: 0%;
+}
+.list-item h5 {
+  font-size: 1rem;
+  font-weight: bold;
+}
+.list-item .direita {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#list-group {
+  display: flex;
+  height: fit-content;
+  flex-direction: column;
+  justify-content: center;
+
+ 
+
+}

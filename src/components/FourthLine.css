@@ -1,0 +1,132 @@
+.timeline {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  min-height: 200px;
+  border-radius: 14px;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 30px;
+  border: 1px solid #ddd;
+
+}
+.coluna-timeline {
+    margin: 0%;
+}
+.conteudo-timeline {
+  position: relative;
+  width: 100%;
+}
+
+.conteudo-timeline span {
+  position: absolute;
+  right: -6%;
+  top: -27px;
+  font-size: 0.6rem;
+  color: #023373;
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  height: 100%t;
+  border-radius: 14px;
+  flex-grow: 2;
+
+}
+.item {
+  display: flex;
+  justify-content: flex-start;
+  padding: 20px;
+  margin-bottom: 3px;
+  border-left: 2px solid rgb(48, 51, 55);
+  position: relative;
+  width: 100%;
+}
+.item p {
+  font-size: 0.8rem;
+  position: absolute;
+  top: -30px;
+  color: #023373
+}
+
+.item .bolinha {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #023373
+}
+.item:hover .bolinha {
+  background-color: #023373
+}
+.item:hover p {
+  color: black;
+}
+
+.note{
+    border-bottom: #ddd 1px solid;
+    padding: 10px;
+}
+.note:hover{
+    background-color: #ffffff;
+    color: #023373
+
+}
+
+span{
+    font-size: smaller;
+    display: block;
+    color:#023373;
+}
+
+
+.alternative-photo{
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    background-color: #555;
+    color: #ddd;
+    margin:10px;
+}
+
+.conjunto-notes{
+    border: #ddd solid 1px;
+    border-radius:14px;
+    padding: 10px;
+    height: 322px;
+    overflow-y: scroll;
+}
+
+.nome-data{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    color: #555;
+    flex-grow: 1;
+
+
+}
+.nome-data span{
+    font-size: smaller;
+    line-height: 0%;
+}
+
+.note{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    background-color: white;
+    border-radius: 14px;    
+    margin-bottom: 12px;
+    background-color:#D9C58B;
+}
