@@ -1,0 +1,22 @@
+.card-dashboard{
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    margin: 10px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10%;
+    flex-direction: column;
+    background-color: rgb(255, 255, 255);;
+}
+
+.card-dashboard h5{
+    width: 100%;
+ }
+.card-dashboard p{
+    font-size: 0.6rem;
+    line-height: 0%;
+    color: #aaa;
+    font-weight: 600;
+}

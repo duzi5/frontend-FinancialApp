@@ -27,6 +27,11 @@ a:hover{
     background-color: #D9C58B
  
 }
+.marcado{
+    color: rgb(238, 237, 237);
+    background-color: #D9C58B
+ 
+}
 
 
 .contain{ 
@@ -46,4 +51,7 @@ a:hover{
     left: 0;
     top: 0;
     width: fit-content;
+}
+.hide{
+    display: none;
 }

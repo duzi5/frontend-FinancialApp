@@ -7,37 +7,43 @@ import { Link } from "react-router-dom"
 
 
 export default (props) => {
+
+  
+
+  
+  
+  
   return (
     <div id="menu-lateral">
       
-      <Link >
+      <Link className="link">
         <AiOutlineMenu/>
       </Link>
-      <Link>
+      <Link className="link">
         <FaSearch />
       </Link>
-      <Link>
-        <AiFillHome to={'/dashboard2'}/>
+      <Link className="link">
+        <AiFillHome  />
       </Link>
-      <Link>
+      <Link to={'/dashboard2'} >
         <AiFillFlag  />
       </Link>
-      <Link to={'/dashboard'}>
+      <Link className="link" id="icoDashboard" to={'/dashboard'}>
         <AiFillPieChart />
       </Link>
-      <Link>
+      <Link className="link">
         <AiFillMail />
       </Link>
-      <Link>
+      <Link className="link">
         <AiFillFileImage />
       </Link>
-      <Link>
+      <Link className="link">
         <AiFillCalendar/>
       </Link>
-      <Link>
+      <Link className="link">
         <HiUsers />
       </Link>
-      <Link>
+      <Link className="link">
         <AiFillSetting/>
       </Link>
     </div>
