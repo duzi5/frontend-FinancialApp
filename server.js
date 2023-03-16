@@ -1,6 +1,5 @@
 const express = require('express')
-const { dirname } = require('path')
-const resolve = require('path')
+const { resolve } = require('path')
 
 const app= express()
 
