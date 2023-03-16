@@ -10,3 +10,5 @@ app.use('/', express.static(
         './build'
     )
 ))
+
+app.listen(process.env.PORT || 3000, (err) => console.error(err))
