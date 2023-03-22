@@ -4,10 +4,12 @@ import React from 'react'
 
 const Tabela = () => {
   return (
-    <table class="table table-striped">
+        <>
+            <h5>Extrato</h5>
+      <table class="table ">
   <thead>
     <tr>
-      <th scope="col">Descricao</th>
+      <th scope="col">Descrição</th>
       <th scope="col">Data de Vencimento</th>
       <th scope="col">Categoria</th>
       <th scope="col">Tipo</th>
@@ -57,8 +59,10 @@ const Tabela = () => {
       <td>the Bird</td>
       <td>@twitter</td>
     </tr>
+
   </tbody>
 </table>
+        </>
   )
 }
 
