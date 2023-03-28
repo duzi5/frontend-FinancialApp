@@ -3,10 +3,11 @@ import styled, { keyframes } from "styled-components";
 import { useMutation } from "react-query";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-
-const urlUsers = "http://127.0.0.1:5000/api/login"
+const urlUsers = "http://127.0.0.1:5000/login";
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -14,7 +15,7 @@ const LoginPage = () => {
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
 
   const handleEmailChange = (e) => setEmail(e.target.value);
-  const handlePasswordChange = (e) => setPassword((e.target.value));
+  const handlePasswordChange = (e) => setPassword(e.target.value);
   const handleSubmit = (e) => {
     e.preventDefault();
     authMutation.mutate();
@@ -26,15 +27,21 @@ const LoginPage = () => {
         password,
       });
       setIsAuthenticated(true);
+      // Get the access token from the response
+      const accessToken = response.data.access_token;
+
+      // Store the access token in localStorage
+      localStorage.setItem("access_token", accessToken);
+      // Navigate to the /dashboard route
+      navigate("/dashboard");
+
       return response.data;
     } catch (error) {
       setErrorMessage("Email ou senha incorretos.");
       throw new Error("Authentication failed");
     }
-    
-  })
+  });
 
-  
   return (
     <StyledContainer>
       <WelcomeMessage show={showWelcomeAnimation}>Bem-vindo(a)!</WelcomeMessage>
@@ -118,8 +125,7 @@ const SubmitButton = styled(Button)`
 `;
 
 const AnimatedSubmitButton = styled(SubmitButton)`
-  
-  opacity: 0; 
+  opacity: 0;
   animation: ${keyframes`
   from {
   opacity: 0;
@@ -129,9 +135,13 @@ const AnimatedSubmitButton = styled(SubmitButton)`
   opacity: 1;
   transform: translateY(0);
   }
-  `} 0.5s ease-in-out forwards`; ;
-  
-   const ErrorMessage = styled.p` color: #ff5555; font-size: 1rem; margin-top: 0.5rem`;;
+  `} 0.5s ease-in-out forwards;
+`;
 
+const ErrorMessage = styled.p`
+  color: #ff5555;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+`;
 
-  export default LoginPage;
+export default LoginPage;

@@ -1,20 +1,17 @@
-import FirstLine from "../components/FirstLine";
-import SecondLine from "../components/SecondLine";
-import ThirdLine from "../components/ThirdLine";
-import FourthLine from "../components/FourthLine";
-import { Container } from "react-bootstrap";
-import Modal1 from './Modal1';
-export default (props) => {
-  return(
-    <>
-      <Container className="container">
-      <FirstLine />
-      <SecondLine />
-      <ThirdLine />
-      <FourthLine />
-    </Container>
-      <Modal1/>
-    </>
-  )
-  
-};
+import React from "react"
+import FirstLine from "../components/FirstLine"
+import { Container} from "react-bootstrap"
+import Linha1 from "../components/Linha1"
+import { Linha2 } from "../components/Linha2"
+import Linha3 from "../components/Linha3"
+
+export default props => {
+    return(
+       <Container>
+         <FirstLine />
+          <Linha1 /> 
+          <Linha2 />
+          <Linha3 /> 
+       </Container>
+    )
+}

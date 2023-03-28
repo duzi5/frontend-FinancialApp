@@ -1,116 +1,77 @@
-import React, { useState } from "react";
-import { Form, Button } from "react-bootstrap";
-import styled from "styled-components";
-import { useMutation, useQueryClient } from "react-query";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Container, Row, Col, Form, Button, Modal } from 'react-bootstrap';
+import styled from 'styled-components';
 
-
-const FormWrapper = styled.div`
+const StyledContainer = styled(Container)`
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 `;
+const Formulario = styled(Modal)`
+  min-width: 500px`;
 
-const FormStyled = styled(Form)`
-  width: 50%;
-  background-color: beige;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-`;
+const CustomForm = () => {
+  const [type, setType] = useState('POSITIVO');
+  const [description, setDescription] = useState('');
+  const [value, setValue] = useState('');
 
-const FormLabel = styled(Form.Label)`
-  color: blue;
-  font-weight: bold;
-`;
-
-const FormGroup = styled(Form.Group)`
-  margin-bottom: 20px;
-`;
-
-const FormControl = styled(Form.Control)`
-  border-color: blue;
-  border-radius: 5px;
-`;
-
-const SubmitButton = styled(Button)`
-  background-color: blue;
-  border-color: blue;
-`;
-
-const FormInput = ({ id, label, type, value, onChange }) => (
-  <FormGroup controlId={id}>
-    <FormLabel>{label}</FormLabel>
-    <FormControl type={type} value={value} onChange={onChange} />
-  </FormGroup>
-);
-
-const FormMovimentos = () => {
-  const [movimento, setMovimento] = useState("");
-  const [valor, setValor] = useState("");
-  const [descricao, setDescricao] = useState("");
-
-  const queryClient = useQueryClient();
-
-  const { mutate } = useMutation(
-    (formData) => {
-      return fetch("/
-      ", {
-        method: "POST",
-        body: JSON.stringify(formData),
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('/api/movimentos', { type, description, value }, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("registros");
-      },
+      // Handle success: clear form, show message, etc.
+    } catch (error) {
+      // Handle error: show error message, etc.
     }
-  );
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = {
-      movimento,
-      valor,
-      descricao,
-    };
-    mutate(formData);
-    setMovimento("");
-    setValor("");
-    setDescricao("");
   };
 
   return (
-    <FormWrapper>
-      <FormStyled onSubmit={handleSubmit}>
-        <FormInput
-          id="movimento"
-          label="Movimento (positivo ou negativo)"
-          type="text"
-          value={movimento}
-          onChange={(e) => setMovimento(e.target.value)}
-        />
-        <FormInput
-          id="valor"
-          label="Valor (em reais)"
-          type="number"
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-        />
-        <FormInput
-          id="descricao"
-          label="Descrição"
-          type="text"
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-        />
-        <SubmitButton type="submit">Enviar</SubmitButton>
-      </FormStyled>
-    </FormWrapper>
-  );
+   
+  
+          <Formulario onSubmit={handleSubmit}>
+            <Formulario.Group controlId="type">
+              <Formulario.Label>Type</Formulario.Label>
+             
+              <Formulario.Control
+            as="select"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <option value="POSITIVO">Positive</option>
+            <option value="NEGATIVO">Negative</option>
+          </Formulario.Control>
+        </Formulario.Group>
+        <Formulario.Group controlId="description">
+          <Formulario.Label>Description</Formulario.Label>
+          <Formulario.Control
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter description"
+          />
+        </Formulario.Group>
+        <Formulario.Group controlId="value">
+          <Formulario.Label>Value</Formulario.Label>
+          <Formulario.Control
+            type="number"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Enter value"
+          />
+        </Formulario.Group>
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
+      </Formulario>
+
+
+);
 };
 
-export default FormMovimentos
+export default CustomForm;
