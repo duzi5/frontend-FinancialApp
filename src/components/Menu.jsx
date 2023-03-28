@@ -71,9 +71,10 @@ const Navigation = () => {
   
     return (
       <StyledNav>
-        <StyledLink to="/" exact>
-          <FaHome />
-        </StyledLink>
+       <StyledLink to="/">
+  <FaHome />
+</StyledLink>
+
         <StyledLink to="/dashboard">
           <FaTachometerAlt />
         

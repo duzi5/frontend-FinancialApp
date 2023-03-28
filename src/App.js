@@ -10,7 +10,9 @@ import UserForm from "./pages/UserForm";
 import HomePage from './pages/HomePage';
 import FormMovimentos from "./pages/FormMovimentos";
 import Metas from "./pages/Metas";
+import AdminUserPage from "./pages/EditableUserList"
 function App() {
+
   
   return (
   
@@ -24,6 +26,7 @@ function App() {
             <Route element={<Metas />} path="/metas" />
             <Route element={<UserForm />} path="/user_form" />
             <Route element={<FormMovimentos />} path="/add-move"/>
+            <Route element={<AdminUserPage />} path="/admin-user-page"/>
           </Routes>
 
         </div>
