@@ -25,3 +25,4 @@ export const Linha2 = () => {
     </Row>
   )
 }
+export default Linha2

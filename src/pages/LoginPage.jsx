@@ -2,10 +2,11 @@ import { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { useMutation } from "react-query";
 import { Form, Button } from "react-bootstrap";
-import axios from "axios";
+import { api } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 const urlUsers = "http://127.0.0.1:5000/login";
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -16,25 +17,22 @@ const LoginPage = () => {
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    authMutation.mutate();
-  };
+
   const authMutation = useMutation(async () => {
     try {
-      const response = await axios.post(urlUsers, {
+      const response = await api.post(urlUsers, {
         email,
         password,
       });
       setIsAuthenticated(true);
       // Get the access token from the response
       const accessToken = response.data.access_token;
-
-      // Store the access token in localStorage
+      const user = response.data.user;
+      // Store the access token and user info in localStorage
       localStorage.setItem("access_token", accessToken);
-      // Navigate to the /dashboard route
+      localStorage.setItem("user", JSON.stringify(user));
       navigate("/dashboard");
-
+      
       return response.data;
     } catch (error) {
       setErrorMessage("Email ou senha incorretos.");
@@ -42,9 +40,16 @@ const LoginPage = () => {
     }
   });
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    authMutation.mutate();
+  };
+
   return (
     <StyledContainer>
-      <WelcomeMessage show={showWelcomeAnimation}>Bem-vindo(a)!</WelcomeMessage>
+      <WelcomeMessage show={showWelcomeAnimation}>
+        Bem-vindo(a)!
+      </WelcomeMessage>
       <h1>Akiva</h1>
       <p>Conexões em finanças</p>
       <LoginForm onSubmit={handleSubmit}>
@@ -67,6 +72,7 @@ const LoginPage = () => {
           {authMutation.isLoading ? "Entrando..." : "Entrar"}
         </AnimatedSubmitButton>
       </LoginForm>
+      <BlinkingButton onClick={() => navigate("/signup")}>Cadastrar</BlinkingButton>
     </StyledContainer>
   );
 };
@@ -83,7 +89,7 @@ const StyledContainer = styled.div`
 
 const WelcomeMessage = styled.h2`
   opacity: ${(props) => (props.show ? 1 : 0)};
-  transform: ${(props) => (props.show ? "translateY(0)" : "translateY(-20px)")};
+  transform: ${(props) => props.show ? "translateY(0)" : "translateY(-20px)"};
   transition: opacity 1s ease-in-out, transform 1s ease-in-out;
 `;
 
@@ -101,47 +107,71 @@ const FormInput = styled(Form.Control)`
   font-size: 1.2rem;
   border: none;
   border-radius: 5px;
-  outline: none;
-`;
-
-const AnimatedFormInput = styled(FormInput)`
-  opacity: 0;
-  animation: ${keyframes`
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  `} 0.5s ease-in-out forwards;
+`;const AnimatedFormInput = styled(FormInput)`
+opacity: 0;
+animation: ${keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`} 0.5s ease-in-out forwards;
 `;
 
 const SubmitButton = styled(Button)`
-  margin: 1rem;
-  padding: 0.5rem 1rem;
-  width: 200px;
+margin: 1rem;
+padding: 0.5rem 1rem;
+width: 200px;
 `;
 
 const AnimatedSubmitButton = styled(SubmitButton)`
-  opacity: 0;
-  animation: ${keyframes`
+opacity: 0;
+animation: ${keyframes`
   from {
-  opacity: 0;
-  transform: translateY(-20px);
+    opacity: 0;
+    transform: translateY(-20px);
   }
   to {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
-  `} 0.5s ease-in-out forwards;
+`} 0.5s ease-in-out forwards;
 `;
 
 const ErrorMessage = styled.p`
-  color: #ff5555;
-  font-size: 1rem;
-  margin-top: 0.5rem;
+color: #ff5555;
+font-size: 1rem;
+margin-top: 0.5rem;
 `;
+
+const blinkingAnimation = keyframes`
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+const BlinkingButton = styled.button`
+background-color: #FF8C00;
+color: #fff;
+border: none;
+border-radius: 5px;
+padding: 10px 20px;
+cursor: pointer;
+animation: ${blinkingAnimation} 2s linear infinite;
+
+&:hover {
+  opacity: 0.8;
+}
+`;
+
+
 
 export default LoginPage;

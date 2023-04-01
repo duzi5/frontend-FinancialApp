@@ -1,126 +1,191 @@
-import React, { useState } from 'react';
-import { Form, Button, Container, Alert } from 'react-bootstrap';
-import { useMutation } from 'react-query';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { Form, Button } from 'react-bootstrap';
+import styled from 'styled-components';
+import { api } from '../api/axios';
 
-const UserForm = ({ userId, onSuccess }) => {
-  const [avatar, setAvatar] = useState(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [family, setFamily] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #222;
+`;
 
-  const saveUser = async (user) => {
-    const formData = new FormData();
-    Object.entries(user).forEach(([key, value]) => formData.append(key, value));
+const StyledForm = styled(Form)`
+  background-color: #333;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+`;
 
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+const FormLabel = styled(Form.Label)`
+  color: #fff;
+`;
+
+const UserForm = () => {
+  const [families, setFamilies] = useState([]);
+  const [user, setUser] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    birthdate: '',
+    family: '',
+    name: '',
+    last_name: '',
+    picture: null,
+  });
+
+  useEffect(() => {
+    const fetchFamilies = async () => {
+      try {
+        const { data } = await api.get('/api/families');
+        setFamilies(data);
+      } catch (error) {
+        console.error('Error fetching families:', error);
+      }
     };
 
-    if (userId) {
-      const { data } = await axios.put(`/api/users/${userId}`, formData, config);
-      return data;
+    fetchFamilies();
+  }, []);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    if (name === 'picture') {
+      setUser({ ...user, [name]: event.target.files[0] });
     } else {
-      const { data } = await axios.post('/api/users', formData, config);
-      return data;
+      setUser({ ...user, [name]: value });
     }
   };
 
-  const mutation = useMutation(saveUser, {
-    onSuccess: () => {
-      setErrorMessage('');
-      onSuccess && onSuccess();
-    },
-    onError: (error) => {
-      setErrorMessage(error.message || 'Ocorreu um erro ao salvar o usuário.');
-    },
-  });
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    try {
+      const formData = new FormData();
+      Object.entries(user).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
-    if (password !== passwordConfirmation) {
-      setErrorMessage('As senhas não coincidem.');
-      return;
+      const { data } = await api.post('http://127.0.0.1:5000/create', formData, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      console.log('User created:', data);
+    } catch (error) {
+      console.error('Error creating user:', error);
     }
-
-    mutation.mutate({ avatar, firstName, lastName, birthDate, family, password });
   };
 
   return (
     <Container>
-      <Form onSubmit={handleSubmit}>
-        {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-        <Form.Group controlId="avatar">
-          <Form.Label>Avatar</Form.Label>
-          <Form.Control type="file" onChange={(e) => setAvatar(e.target.files[0])} />
-        </Form.Group>
-        <Form.Group controlId="firstName">
-          <Form.Label>Nome</Form.Label>
+      <StyledForm onSubmit={handleSubmit}>
+        {/* Nome */}
+        <Form.Group controlId="name">
+          <FormLabel>Nome</FormLabel>
           <Form.Control
             type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            name="name"
+            value={user.name}
+            onChange={handleChange}
             required
           />
         </Form.Group>
-        <Form.Group controlId="lastName">
-          <Form.Label>Sobrenome</Form.Label>
-          <Form.Control
-            type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="birthDate">
-          <Form.Label>Data de nascimento</Form.Label>
-          <Form.Control
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="family">
-          <Form.Label>Família</Form.Label>
-          <Form.Control
-            type="text"
-            value={family}
-            onChange={(e) => setFamily(e.target.value)}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="password">
-          <Form.Label>Senha</Form.Label>
-          <Form.Control
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-    </Form.Group>
-    <Form.Group controlId="passwordConfirmation">
-      <Form.Label>Confirmação de senha</Form.Label>
-      <Form.Control
-        type="password"
-        value={passwordConfirmation}
-        onChange={(e) => setPasswordConfirmation(e.target.value)}
-        required
-      />
-    </Form.Group>
-    <Button variant="primary" type="submit">
-      {userId ? 'Atualizar usuário' : 'Criar usuário'}
-    </Button>
-  </Form>
-</Container>
-  )}
-  
 
-  export default UserForm
+        {/* Sobrenome */}
+        <Form.Group controlId="last_name">
+          <FormLabel>Sobrenome</FormLabel>
+          <Form.Control
+            type="text"
+            name="last_name"
+            value={user.last_name}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+        {/* Avatar */}
+        <Form.Group controlId="picture">
+          <FormLabel>Avatar</FormLabel>
+          <Form.Control
+      type="file"
+      name="picture"
+      onChange={handleChange}
+      required
+    />
+  </Form.Group>
+
+  {/* Data de nascimento */}
+  <Form.Group controlId="birthdate">
+    <FormLabel>Data de nascimento</FormLabel>
+    <Form.Control
+      type="date"
+      name="birthdate"
+      value={user.birthdate}
+      onChange={handleChange}
+      required
+    />
+  </Form.Group>
+
+  {/* E-mail */}
+  <Form.Group controlId="email">
+    <FormLabel>Email</FormLabel>
+    <Form.Control
+      type="email"
+      name="email"
+      value={user.email}
+      onChange={handleChange}
+      required
+    />
+  </Form.Group>
+
+  {/* Família */}
+  <Form.Group controlId="family">
+    <FormLabel>Família</FormLabel>
+    <Form.Control
+      as="select"
+      name="family"
+      value={user.family}
+      onChange={handleChange}
+    >
+      <option value="">Selecione uma família</option>
+      {families.map((family) => (
+        <option key={family._id} value={family._id}>
+          {family.name}
+        </option>
+      ))}
+    </Form.Control>
+  </Form.Group>
+
+  {/* Senha */}
+  <Form.Group controlId="password">
+    <FormLabel>Senha</FormLabel>
+    <Form.Control
+      type="password"
+      name="password"
+      value={user.password}
+      onChange={handleChange}
+      required
+    />
+  </Form.Group>
+
+  {/* Confirmação de senha */}
+  <Form.Group controlId="confirmPassword">
+    <FormLabel>Confirme a senha</FormLabel>
+    <Form.Control
+      type="password"
+      name="confirmPassword"
+      value={user.confirmPassword}
+      onChange={handleChange}
+      required
+    />
+  </Form.Group>
+
+  {/* Botão de envio */}
+  <Button variant="primary" type="submit">
+    Cadastrar
+  </Button>
+</StyledForm>
+</Container>
+)};
+export default UserForm;
+

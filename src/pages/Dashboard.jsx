@@ -1,17 +1,24 @@
-import React from "react"
-import FirstLine from "../components/FirstLine"
-import { Container} from "react-bootstrap"
-import Linha1 from "../components/Linha1"
-import { Linha2 } from "../components/Linha2"
-import Linha3 from "../components/Linha3"
+import React from "react";
+import { Container, Button } from "react-bootstrap";
+import FirstLine from "../components/FirstLine";
+import Linha1 from "../components/Linha1";
+import Linha2 from "../components/Linha2";
+import Linha3 from "../components/Linha3";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export default props => {
-    return(
-       <Container>
-         <FirstLine />
-          <Linha1 /> 
-          <Linha2 />
-          <Linha3 /> 
-       </Container>
-    )
+function Dashboard() {
+  return (
+    <div style={{ paddingLeft: "60px" }}>
+      <Container>
+         <h1>Bem vindo, {JSON.parse(localStorage.getItem("user"))["name"]}</h1>
+        <FirstLine />
+        <Linha1 />
+        <Linha2 />
+        <Linha3 />
+      </Container>
+    </div>
+  );
 }
+
+export default Dashboard;

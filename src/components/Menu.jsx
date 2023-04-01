@@ -1,11 +1,17 @@
-import React, {useState} from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { FaHome, FaTachometerAlt, FaPlus, FaBullseye, FaCreditCard, FaSignOutAlt } from 'react-icons/fa';
-import styled from 'styled-components';
-
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
+import {
+  FaTachometerAlt,
+  FaPlus,
+  FaBullseye,
+  FaCreditCard,
+  FaSignOutAlt,
+  FaFlag,
+} from "react-icons/fa";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const StyledButton = styled.button`
-  /* Add the same styles as StyledLink */
   background: none;
   border: none;
   color: #fff;
@@ -25,29 +31,36 @@ const StyledButton = styled.button`
   }
 `;
 
-
 const StyledNav = styled.nav`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #333;
+  background-color: #38054c;
   padding: 1rem;
   height: 100vh;
+  width: 60px;
   position: fixed;
   left: 0;
   top: 0;
 `;
 
 const StyledLink = styled(NavLink)`
-  text-decoration: none;
+  background: none;
+  border: none;
   color: #fff;
+  text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 1rem;
+  cursor: pointer;
 
   &.active {
-    color: #f9b233;
+    color: #c8df17;
+  }
+
+  &:hover {
+    color: #c8df17;
   }
 
   svg {
@@ -55,45 +68,35 @@ const StyledLink = styled(NavLink)`
   }
 `;
 
-const Navigation = () => {
-    const location = useLocation();
-    const [showModal, setShowModal] = useState(false);
-    const handleOpenModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
-    
+const Sidebar = () => {
+  const navigate = useNavigate();
 
-
-
-
-    if (['/', '/login', '/signin'].includes(location.pathname)) {
-      return null;
-    }
-  
-    return (
-      <StyledNav>
-       <StyledLink to="/">
-  <FaHome />
-</StyledLink>
-
-        <StyledLink to="/dashboard">
-          <FaTachometerAlt />
-        
-        </StyledLink>
-        <StyledLink to="/add-move">
-          <FaPlus />
-        </StyledLink>
-        <StyledLink to="/metas">
-          <FaBullseye />
-        </StyledLink>
-        <StyledLink to="/add-payment-method">
-          <FaCreditCard />
-        </StyledLink>
-        <StyledLink to="/logout">
-          <FaSignOutAlt />
-        </StyledLink>
-      </StyledNav>
-    );
+  const handleLogout = () => {
+    localStorage.setItem("access_token", "");
+    navigate("/login");
   };
-  
-  export default Navigation;
-  
+
+  return (
+    <StyledNav>
+      <StyledLink to="/dashboard" activeClassName="active">
+        <FaTachometerAlt />
+      </StyledLink>
+      <StyledLink to="/add-move" activeClassName="active">
+        <FaPlus />
+      </StyledLink>
+      <StyledLink to="/targets" activeClassName="active">
+        <FaBullseye />
+      </StyledLink>
+      <StyledLink to="/billing" activeClassName="active">
+        <FaCreditCard />
+      </StyledLink>
+      <StyledLink to="/goals-page" activeClassName="active">
+        <FaFlag />
+      </StyledLink>
+      <StyledButton onClick={handleLogout}>
+        <FaSignOutAlt />
+      </StyledButton>
+    </StyledNav>
+  );
+};
+export default Sidebar;

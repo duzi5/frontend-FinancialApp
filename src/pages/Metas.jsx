@@ -3,7 +3,6 @@ import SecondLine from "../components/SecondLine";
 import ThirdLine from "../components/ThirdLine";
 import FourthLine from "../components/FourthLine";
 import { Container } from "react-bootstrap";
-import Modal1 from './Modal1';
 export default (props) => {
   return(
     <>
@@ -13,7 +12,7 @@ export default (props) => {
       <ThirdLine />
       <FourthLine />
     </Container>
-      <Modal1/>
+
     </>
   )
   
