@@ -1,17 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Form, Button, Container } from 'react-bootstrap';
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Form, Button, Container } from "react-bootstrap";
+import styled from "styled-components";
+import { api } from "../api/axios";
 
-const StyledContainer = styled(Container)`
-  background-color: #38054c;
-  padding: 2rem;
-  border-radius: 8px;
-  color:#c8df17;
-  max-width: 400px;
-  margin-top: 50px;
-  
-`;
+const StyledContainer = styled(Container)``;
 
 const StyledForm = styled(Form)`
   margin-top: 1rem;
@@ -30,20 +23,23 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const user = localStorage.getItem("user");
+
 const EditPaymentMethodForm = ({ paymentMethodId }) => {
+  console.log(user);
   const [paymentMethod, setPaymentMethod] = useState({
-    type: '',
-    brand: '',
-    bank: '',
-    user_id: '',
-    best_purchase_day: '',
-    due_date: '',
-    family_id: '',
+    type: "",
+    brand: "",
+    bank: "",
+    user_id: user._id, 
+    best_purchase_day: "",
+    due_date: "",
+    family: user.family, 
   });
 
   useEffect(() => {
     const fetchPaymentMethod = async () => {
-      const response = await axios.get(`/api/payment_methods/${paymentMethodId}`);
+      const response = await api.get(`/payment_methods/${paymentMethodId}`);
       setPaymentMethod(response.data);
     };
 
@@ -56,15 +52,17 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(paymentMethod);
     try {
-      await axios.put(`/api/payment_methods/${paymentMethodId}`, paymentMethod);
-      alert('Payment method updated successfully!');
+      await api.post("/payment_methods/payment_methods", paymentMethod);
+      alert("Payment method updated successfully!");
     } catch (error) {
       console.error(error);
-      alert('Error updating payment method.');
+      alert("Error updating payment method.");
     }
   };
 
+  // Restante do código do componente
   return (
     <StyledContainer>
       <StyledForm onSubmit={handleSubmit}>
@@ -77,14 +75,14 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
             onChange={handleChange}
             required
           >
-            <option value="">Select type</option>
+            <option value="">Selecione tipo</option>
             <option value="debit">Debit</option>
             <option value="credit">Credit</option>
           </Form.Control>
         </Form.Group>
 
         <Form.Group controlId="brand">
-          <Form.Label>Brand</Form.Label>
+          <Form.Label>Bandeira</Form.Label>
           <Form.Control
             type="text"
             name="brand"
@@ -95,7 +93,7 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
         </Form.Group>
 
         <Form.Group controlId="bank">
-          <Form.Label>Bank</Form.Label>
+          <Form.Label>Banco</Form.Label>
           <Form.Control
             type="text"
             name="bank"
@@ -105,19 +103,8 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
           />
         </Form.Group>
 
-        <Form.Group controlId="user_id">
-          <Form.Label>User ID</Form.Label>
-          <Form.Control
-            type="text"
-            name="user_id"
-            value={paymentMethod.user_id}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-
         <Form.Group controlId="best_purchase_day">
-          <Form.Label>Best Purchase Day</Form.Label>
+          <Form.Label>Melhor dia de compra</Form.Label>
           <Form.Control
             type="number"
             name="best_purchase_day"
@@ -128,7 +115,7 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
         </Form.Group>
 
         <Form.Group controlId="due_date">
-          <Form.Label>Due Date</Form.Label>
+          <Form.Label>Vencimento</Form.Label>
           <Form.Control
             type="number"
             name="due_date"
@@ -137,23 +124,13 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
             required
           />
         </Form.Group>
-    
-        <Form.Group controlId="family_id">
-          <Form.Label>Family ID</Form.Label>
-          <Form.Control
-            type="text"
-            name="family_id"
-            value={paymentMethod.family_id}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-    
+
         <StyledButton variant="primary" type="submit">
-          Update
+          Inserir
         </StyledButton>
       </StyledForm>
     </StyledContainer>
-  )}
+  );
+};
 
-  export default EditPaymentMethodForm
+export default EditPaymentMethodForm;

@@ -26,12 +26,11 @@ const LoginPage = () => {
       });
       setIsAuthenticated(true);
       // Get the access token from the response
-      const accessToken = response.data.access_token;
-      const user = response.data.user;
+      const accessToken = response.data['access_token'];
+      const user = response.data['user']
       // Store the access token and user info in localStorage
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
-      navigate("/dashboard");
       
       return response.data;
     } catch (error) {
@@ -39,10 +38,11 @@ const LoginPage = () => {
       throw new Error("Authentication failed");
     }
   });
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     authMutation.mutate();
+    navigate("/dashboard");
   };
 
   return (

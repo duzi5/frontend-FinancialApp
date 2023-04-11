@@ -87,7 +87,7 @@ const Sidebar = () => {
       <StyledLink to="/targets" activeClassName="active">
         <FaBullseye />
       </StyledLink>
-      <StyledLink to="/billing" activeClassName="active">
+      <StyledLink to="/payment-methods-list" activeClassName="active">
         <FaCreditCard />
       </StyledLink>
       <StyledLink to="/goals-page" activeClassName="active">

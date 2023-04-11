@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form, Button, Col, Container } from 'react-bootstrap';
 import styled from 'styled-components';
-
+import {api } from '../api/axios'
 const StyledForm = styled(Form)`
   margin-top: 1rem;
   max-width: 400px;
@@ -30,7 +30,7 @@ const MoveForm = () => {
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
-      const response = await axios.get('http://127.0.0.1:5000/api/payment_methods');
+      const response = await api.get('/payment_methods/family_payment_methods' );
       setPaymentMethods(response.data);
     };
 
@@ -44,7 +44,7 @@ const MoveForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:5000/api/moves/create', moveData);
+      await api.post('/', moveData);
       alert('Move successfully created!');
     } catch (error) {
       console.error(error);

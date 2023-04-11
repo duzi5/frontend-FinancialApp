@@ -41,7 +41,7 @@ function App() {
           <Route element={<PrivateRoute element={<Metas />} />} path="/metas" />
           <Route
             element={<UserForm />}
-            path="signin"
+            path="/signin"
           />
           <Route
             element={<PrivateRoute element={<MovesForm />} />}
@@ -49,7 +49,7 @@ function App() {
           />
           <Route
             element={<PrivateRoute element={<PaymentMethodsList />} />}
-            path="/edit_method"
+            path="/payment-methods-list"
           />
           <Route
             element={<PrivateRoute element={<GoalsPage />} />}

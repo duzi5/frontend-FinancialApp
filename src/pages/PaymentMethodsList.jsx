@@ -23,7 +23,7 @@ const PaymentMethodsList = () => {
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
-        const response = await api.get('/payment_methods');
+        const response = await api.get('payment_methods/payment_methods_list');
         setPaymentMethods(response.data);
       } catch (error) {
         console.error(error);
@@ -47,7 +47,7 @@ const PaymentMethodsList = () => {
     if (selectedPaymentMethodId) {
       // Update existing payment method
       try {
-        await api.put(`/payment_methods/${selectedPaymentMethodId}`, paymentMethod);
+        await api.put(`payment_methods/payment_methods/${selectedPaymentMethodId}`, paymentMethod);
         setPaymentMethods(
           paymentMethods.map((method) =>
             method._id === selectedPaymentMethodId ? { ...paymentMethod, _id: method._id } : method
@@ -61,7 +61,7 @@ const PaymentMethodsList = () => {
     } else {
       // Create new payment method
       try {
-        const response = await api.post('/payment_methods', paymentMethod);
+        const response = await api.post('/payment_methods/payment_methods', paymentMethod);
         setPaymentMethods([...paymentMethods, response.data]);
         alert('Payment method created successfully!');
       } catch (error) {
@@ -78,12 +78,12 @@ const PaymentMethodsList = () => {
       <StyledTable striped bordered hover>
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Brand</th>
-            <th>Bank</th>
-            <th>Best Purchase Day</th>
-            <th>Due Date</th>
-            <th>Actions</th>
+            <th>Tipo</th>
+            <th>Bandeira</th>
+            <th>Banco</th>
+            <th>Melhor Dia de Compra</th>
+            <th>Vencimento</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>

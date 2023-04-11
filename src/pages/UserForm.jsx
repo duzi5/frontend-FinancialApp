@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import styled from 'styled-components';
-import { api } from '../api/axios';
+import React, { useState } from "react";
+import { Form, Button } from "react-bootstrap";
+import styled from "styled-components";
+import { useMutation, useQuery } from "react-query";
+import { api } from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -23,62 +25,87 @@ const FormLabel = styled(Form.Label)`
   color: #fff;
 `;
 
+const ErrorMessage = styled.p`
+  color: #ff3333;
+`;
+
 const UserForm = () => {
-  const [families, setFamilies] = useState([]);
+  const navigate = useNavigate();
   const [user, setUser] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    birthdate: '',
-    family: '',
-    name: '',
-    last_name: '',
-    picture: null,
+    email: "",
+    password: "",
+    confirmPassword: "",
+    birthdate: "",
+    family: "",
+    name: "",
+    last_name: "",
+  });
+  const [error, setError] = useState(null);
+
+  const fetchFamilies = async () => {
+    const { data } = await api.get("/families/families");
+    return data;
+  };
+
+  const createUser = async (user) => {
+    const { data } = await api.post("/create", user, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return data;
+  };
+
+  const { data: families, isLoading } = useQuery("families", fetchFamilies);
+  const mutation = useMutation(createUser, {
+    onSuccess: () => {
+      navigate("/login");
+    },
+    onError: (error) => {
+      console.error("Error creating user:", error);
+      setError(
+        "Erro ao criar usuário. Verifique se o e-mail já foi cadastrado."
+      );
+    },
   });
 
-  useEffect(() => {
-    const fetchFamilies = async () => {
-      try {
-        const { data } = await api.get('/api/families');
-        setFamilies(data);
-      } catch (error) {
-        console.error('Error fetching families:', error);
-      }
-    };
-
-    fetchFamilies();
-  }, []);
+  const validateForm = () => {
+    if (user.password.length < 6) {
+      return false;
+    }
+    if (user.password !== user.confirmPassword) {
+      return false;
+    }
+    return true;
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    if (name === 'picture') {
-      setUser({ ...user, [name]: event.target.files[0] });
-    } else {
-      setUser({ ...user, [name]: value });
-    }
+    setUser({ ...user, [name]: value });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const formData = new FormData();
-      Object.entries(user).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
 
-      const { data } = await api.post('http://127.0.0.1:5000/create', formData, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      
-      console.log('User created:', data);
-    } catch (error) {
-      console.error('Error creating user:', error);
+    if (!validateForm()) {
+      setError(
+        "A senha deve ter pelo menos 6 dígitos e ser igual à confirmação de senha."
+      );
+      return;
     }
+
+    const userToSend = { ...user };
+    delete userToSend.confirmPassword;
+
+    mutation.mutate(userToSend);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Container>
       <StyledForm onSubmit={handleSubmit}>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         {/* Nome */}
         <Form.Group controlId="name">
           <FormLabel>Nome</FormLabel>
@@ -103,89 +130,77 @@ const UserForm = () => {
           />
         </Form.Group>
 
-        {/* Avatar */}
-        <Form.Group controlId="picture">
-          <FormLabel>Avatar</FormLabel>
+        {/* Email */}
+        <Form.Group controlId="email">
+          <FormLabel>Email</FormLabel>
           <Form.Control
-      type="file"
-      name="picture"
-      onChange={handleChange}
-      required
-    />
-  </Form.Group>
+            type="email"
+            name="email"
+            value={user.email}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-  {/* Data de nascimento */}
-  <Form.Group controlId="birthdate">
-    <FormLabel>Data de nascimento</FormLabel>
-    <Form.Control
-      type="date"
-      name="birthdate"
-      value={user.birthdate}
-      onChange={handleChange}
-      required
-    />
-  </Form.Group>
+        {/* Senha */}
+        <Form.Group controlId="password">
+          <FormLabel>Senha</FormLabel>
+          <Form.Control
+            type="password"
+            name="password"
+            value={user.password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-  {/* E-mail */}
-  <Form.Group controlId="email">
-    <FormLabel>Email</FormLabel>
-    <Form.Control
-      type="email"
-      name="email"
-      value={user.email}
-      onChange={handleChange}
-      required
-    />
-  </Form.Group>
+        {/* Confirmar Senha */}
+        <Form.Group controlId="confirmPassword">
+          <FormLabel>Confirmar Senha</FormLabel>
+          <Form.Control
+            type="password"
+            name="confirmPassword"
+            value={user.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-  {/* Família */}
-  <Form.Group controlId="family">
-    <FormLabel>Família</FormLabel>
-    <Form.Control
-      as="select"
-      name="family"
-      value={user.family}
-      onChange={handleChange}
-    >
-      <option value="">Selecione uma família</option>
-      {families.map((family) => (
-        <option key={family._id} value={family._id}>
-          {family.name}
-        </option>
-      ))}
-    </Form.Control>
-  </Form.Group>
+        {/* Data de Nascimento */}
+        <Form.Group controlId="birthdate">
+          <FormLabel>Data de Nascimento</FormLabel>
+          <Form.Control
+            type="date"
+            name="birthdate"
+            value={user.birthdate}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-  {/* Senha */}
-  <Form.Group controlId="password">
-    <FormLabel>Senha</FormLabel>
-    <Form.Control
-      type="password"
-      name="password"
-      value={user.password}
-      onChange={handleChange}
-      required
-    />
-  </Form.Group>
+        {/* Família */}
+        <Form.Group controlId="family">
+          <FormLabel>Família</FormLabel>
+          <Form.Control
+            as="select"
+            name="family"
+            value={user.family}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecione uma família</option>
+            {families.map((family) => (
+              <option key={family.id} value={family.id}>
+                {family.name}
+              </option>
+            ))}
+          </Form.Control>
+        </Form.Group>
 
-  {/* Confirmação de senha */}
-  <Form.Group controlId="confirmPassword">
-    <FormLabel>Confirme a senha</FormLabel>
-    <Form.Control
-      type="password"
-      name="confirmPassword"
-      value={user.confirmPassword}
-      onChange={handleChange}
-      required
-    />
-  </Form.Group>
+        <Button type="submit">Criar Conta</Button>
+      </StyledForm>
+    </Container>
+  );
+};
 
-  {/* Botão de envio */}
-  <Button variant="primary" type="submit">
-    Cadastrar
-  </Button>
-</StyledForm>
-</Container>
-)};
 export default UserForm;
-

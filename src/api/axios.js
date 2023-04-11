@@ -1,17 +1,9 @@
 import axios from "axios";
 
-const baseURL = "http://127.0.0.1:5000/";
+const baseURL = "http://127.0.0.1:5000";
 
 export const api = axios.create({
   baseURL,
-  // headers: {
-  //   "Content-Type": "application/json",
-  //   "Access-Control-Allow-Origin": "*",
-  //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  //   "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  //   "Access-Control-Allow-Credentials": "true",
-  // },
-  // withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -31,4 +23,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
