@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Form, Button, Container } from "react-bootstrap";
+import { json } from "react-router-dom";
 import styled from "styled-components";
 import { api } from "../api/axios";
 
@@ -23,20 +23,21 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const user = localStorage.getItem("user");
+const user = JSON.parse(localStorage.user)
+console.log(user)
 
 const EditPaymentMethodForm = ({ paymentMethodId }) => {
-  console.log(user);
   const [paymentMethod, setPaymentMethod] = useState({
     type: "",
     brand: "",
     bank: "",
-    user_id: user._id, 
+    user_id: user["_id"],
     best_purchase_day: "",
-    due_date: "",
-    family: user.family, 
+    due_date: "", 
+    family: user["family"]
   });
-
+;
+  
   useEffect(() => {
     const fetchPaymentMethod = async () => {
       const response = await api.get(`/payment_methods/${paymentMethodId}`);
@@ -51,8 +52,7 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(paymentMethod);
+    e.preventDefault();;
     try {
       await api.post("/payment_methods/payment_methods", paymentMethod);
       alert("Payment method updated successfully!");

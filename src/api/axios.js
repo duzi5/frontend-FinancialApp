@@ -14,12 +14,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response.status === 401) {
-      // Handle unauthorized error
-    }
-    return Promise.reject(error);
-  }
-);
+
+export const addPaymentMethod = async (paymentMethodData) => {
+  const response = await api.post('/payment_methods', paymentMethodData);
+  return response.data;
+};

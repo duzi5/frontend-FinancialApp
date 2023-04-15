@@ -5,12 +5,12 @@ import { Form, Button } from "react-bootstrap";
 import { api } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
-const urlUsers = "http://127.0.0.1:5000/login";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const urlUsers = "/login";
   const [errorMessage, setErrorMessage] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
@@ -72,7 +72,7 @@ const LoginPage = () => {
           {authMutation.isLoading ? "Entrando..." : "Entrar"}
         </AnimatedSubmitButton>
       </LoginForm>
-      <BlinkingButton onClick={() => navigate("/signup")}>Cadastrar</BlinkingButton>
+      <BlinkingButton onClick={() => navigate("/signin")}>Cadastrar</BlinkingButton>
     </StyledContainer>
   );
 };
@@ -84,7 +84,7 @@ const StyledContainer = styled.div`
   align-items: center;
   height: 100vh;
   background-color: #000;
-  color: #fff;
+  color: #4b0181;
 `;
 
 const WelcomeMessage = styled.h2`
@@ -107,7 +107,8 @@ const FormInput = styled(Form.Control)`
   font-size: 1.2rem;
   border: none;
   border-radius: 5px;
-`;const AnimatedFormInput = styled(FormInput)`
+`;
+const AnimatedFormInput = styled(FormInput)`
 opacity: 0;
 animation: ${keyframes`
   from {
