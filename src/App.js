@@ -8,15 +8,17 @@ import Dashboard2 from "./pages/Dashboard";
 import { QueryClient, QueryClientProvider } from "react-query";
 import UserForm from "./pages/UserForm";
 import HomePage from "./pages/HomePage";
-import MovesForm from "./pages/MovesForm"
+import MovesForm from "./pages/MovesForm";
 import Metas from "./pages/Metas";
 import AdminUserPage from "./pages/EditableUserList";
-import {api} from "./api/axios";
+import { api } from "./api/axios";
 import Logout from "./pages/Logout";
 import PrivateRoute from "./pages/PrivateRoute";
 import GoalsPage from "./pages/GoalsPage";
-import EditPaymentMethodForm from "./pages/EditPaymentMethodForm"
-import PaymentMethodsList from './pages/PaymentMethodsList';
+import EditPaymentMethodForm from "./pages/EditPaymentMethodForm";
+import PaymentMethodsList from "./pages/PaymentMethodsList";
+import MoveList from "./pages/MoveList";
+import StatementPage from "./pages/StatementPage";
 function App() {
   const fetchUser = async () => {
     const { data } = await api.get("/api/users/", {
@@ -39,10 +41,7 @@ function App() {
             path="/dashboard"
           />
           <Route element={<PrivateRoute element={<Metas />} />} path="/metas" />
-          <Route
-            element={<UserForm />}
-            path="/signin"
-          />
+          <Route element={<UserForm />} path="/signin" />
           <Route
             element={<PrivateRoute element={<MovesForm />} />}
             path="/add-move"
@@ -58,6 +57,10 @@ function App() {
           <Route
             element={<PrivateRoute element={<AdminUserPage />} />}
             path="/admin-user-page"
+          />
+          <Route
+            element={<PrivateRoute element={<StatementPage />} />}
+            path="/extrato"
           />
           <Route element={<Logout />} path="/logout" />
         </Routes>

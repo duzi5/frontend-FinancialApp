@@ -4,6 +4,7 @@ import { addPaymentMethod } from './api';
 const AddPaymentMethod = () => {
   const [paymentMethodData, setPaymentMethodData] = useState({
     type: '',
+    name: '',
     brand: '',
     bank: '',
     best_purchase_day: '',
@@ -35,6 +36,15 @@ const AddPaymentMethod = () => {
             type="text"
             name="type"
             value={paymentMethodData.type}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Name:
+          <input
+            type="text"
+            name="name"
+            value={paymentMethodData.name}
             onChange={handleChange}
           />
         </label>
@@ -81,3 +91,4 @@ const AddPaymentMethod = () => {
 };
 
 export default AddPaymentMethod;
+

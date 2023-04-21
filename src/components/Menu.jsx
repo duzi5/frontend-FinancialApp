@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-
+import MoveForm from '../pages/MovesForm';
 const StyledButton = styled.button`
   background: none;
   border: none;
@@ -70,10 +70,19 @@ const StyledLink = styled(NavLink)`
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const [showMoveForm, setShowMoveForm] = useState(false);
 
   const handleLogout = () => {
     localStorage.setItem("access_token", "");
     navigate("/login");
+  };
+
+  const handleShowMoveForm = () => {
+    setShowMoveForm(true);
+  };
+
+  const handleCloseMoveForm = () => {
+    setShowMoveForm(false);
   };
 
   return (
@@ -81,9 +90,10 @@ const Sidebar = () => {
       <StyledLink to="/dashboard" activeClassName="active">
         <FaTachometerAlt />
       </StyledLink>
-      <StyledLink to="/add-move" activeClassName="active">
+      <StyledButton onClick={handleShowMoveForm}>
         <FaPlus />
-      </StyledLink>
+      </StyledButton>
+      <MoveForm show={showMoveForm} handleClose={handleCloseMoveForm} />
       <StyledLink to="/targets" activeClassName="active">
         <FaBullseye />
       </StyledLink>

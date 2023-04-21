@@ -1,6 +1,6 @@
+// Importações e estilização
 import React, { useState, useEffect } from "react";
 import { Form, Button, Container } from "react-bootstrap";
-import { json } from "react-router-dom";
 import styled from "styled-components";
 import { api } from "../api/axios";
 
@@ -23,21 +23,21 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const user = JSON.parse(localStorage.user)
-console.log(user)
+const user = JSON.parse(localStorage.user);
+console.log(user);
 
 const EditPaymentMethodForm = ({ paymentMethodId }) => {
   const [paymentMethod, setPaymentMethod] = useState({
     type: "",
     brand: "",
+    name: "",
     bank: "",
     user_id: user["_id"],
     best_purchase_day: "",
-    due_date: "", 
-    family: user["family"]
+    due_date: "",
+    family: user["family"],
   });
-;
-  
+
   useEffect(() => {
     const fetchPaymentMethod = async () => {
       const response = await api.get(`/payment_methods/${paymentMethodId}`);
@@ -50,9 +50,8 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
   const handleChange = (e) => {
     setPaymentMethod({ ...paymentMethod, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
-    e.preventDefault();;
+    e.preventDefault();
     try {
       await api.post("/payment_methods/payment_methods", paymentMethod);
       alert("Payment method updated successfully!");
@@ -92,6 +91,16 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
           />
         </Form.Group>
 
+        <Form.Group controlId="name">
+          <Form.Label>Nome</Form.Label>
+          <Form.Control
+            type="text"
+            name="name"
+            value={paymentMethod.name}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
         <Form.Group controlId="bank">
           <Form.Label>Banco</Form.Label>
           <Form.Control
@@ -125,9 +134,15 @@ const EditPaymentMethodForm = ({ paymentMethodId }) => {
           />
         </Form.Group>
 
-        <StyledButton variant="primary" type="submit">
-          Inserir
-        </StyledButton>
+        <footer>
+    <Form.Group>
+      <StyledButton variant="primary" type="submit">
+        Inserir
+      </StyledButton>
+    </Form.Group>
+  </footer>
+
+        
       </StyledForm>
     </StyledContainer>
   );

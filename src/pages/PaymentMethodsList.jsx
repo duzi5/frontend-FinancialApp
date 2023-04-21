@@ -118,8 +118,8 @@ const PaymentMethodsList = () => {
       <StyledTable striped hover>
         <thead>
           <tr>
-            <th>id</th>
             <th>Tipo</th>
+            <th>Nome</th>
             <th>Bandeira</th>
             <th>Banco</th>
             <th>MDC</th>
@@ -131,8 +131,8 @@ const PaymentMethodsList = () => {
         <tbody>
           {paymentMethods.map((method) => (
             <tr key={method._id}>
-              <td>{method._id}</td>
               <td>{method.type}</td>
+              <td>{method.name}</td>
               <td>{method.brand}</td>
               <td>{method.bank}</td>
               <td>{method.best_purchase_day}</td>
@@ -201,3 +201,4 @@ const PaymentMethodsList = () => {
 };
 
 export default PaymentMethodsList;
+
