@@ -32,9 +32,9 @@ const IconButton = styled.button`
   }
 `;
 
-const MoveList = ({ referenceMonth }) => {
+export const MoveList = ({ referenceMonth }) => {
   const [moves, setMoves] = useState([]);
-
+console.log('o componente movelist também está sendo renderizado')
   useEffect(() => {
     const fetchMoves = async () => {
       try {
@@ -97,4 +97,3 @@ const MoveList = ({ referenceMonth }) => {
   );
 };
 
-export default MoveList;

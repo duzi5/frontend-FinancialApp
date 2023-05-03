@@ -1,230 +1,249 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Form, Button, Col, Container, Modal } from "react-bootstrap";
-import styled from "styled-components";
+import { Form, Button, Row, Col } from "react-bootstrap";
 import { api } from "../api/axios";
-import { json } from "react-router-dom";
+import PaymentMethodsListComponent from "./PaymentMethodsListComponent";
+import CategoriesInput from "./CategoriesInput";
 
-const MoveForm = ({ show, handleClose }) => {
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [moveData, setMoveData] = useState({
-    description: "",
-    value: "",
-    nature: "",
-    category: "",
-    paymentMethod: "",
-    date: "",
-    installments: 1,
-    installment_number: 1,
-    installment_value: "",
-  });
-  const initialState = {
-    description: "",
-    value: "",
-    nature: "",
-    category: "",
-    paymentMethod: "",
-    date: "",
-    installments: 1,
-    installment_number: 1,
-    installment_value: "",
-  };
-
-  const isUserLoggedIn = () => {
-    const token = localStorage.getItem("access_token");
-    return token && token.length > 0;
-  };
+export const MovesForm = ({ onSubmit, moveToEdit }) => {
+  const [description, setDescription] = useState("");
+  const [value, setValue] = useState("");
+  const [nature, setNature] = useState("negative");
+  const [category, setCategory] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [date, setDate] = useState("");
+  const [installmentInfo, setInstallmentInfo] = useState("");
+  const [reserve, setReserve] = useState(false);
+  const [balanceGoals, setBalanceGoals] = useState([]);
 
   useEffect(() => {
-    const fetchPaymentMethods = async () => {
+    const fetchBalanceGoals = async () => {
       try {
-        const response = await api.get("payment_methods/payment_methods");
-        console.log("Response data:", response.data);
-        setPaymentMethods(response.data);
+        const response = await api.get("/balance-goals");
+        setBalanceGoals(response.data);
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchPaymentMethods();
+    fetchBalanceGoals();
   }, []);
 
-  const handleChange = (e) => {
-    setMoveData({ ...moveData, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    if (moveToEdit) {
+      setDescription(moveToEdit.description);
+      setValue(moveToEdit.value);
+      setNature(moveToEdit.nature);
+      setCategory(moveToEdit.category);
+      setPaymentMethod(moveToEdit.paymentMethod);
+      setDate(moveToEdit.date.slice(0, 10));
+      setInstallmentInfo(moveToEdit.installmentInfo);
+      setReserve(moveToEdit.reserve);
+    }
+  }, [moveToEdit]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const move = {
+      description,
+      value,
+      nature,
+      category,
+      paymentMethod,
+      date,
+      installmentInfo,
+      reserve,
+    };
+
+    
     try {
-      const installments = parseInt(moveData.installments);
-
-      for (let i = 0; i < installments; i++) {
-        const installmentDate = new Date(moveData.date);
-        installmentDate.setMonth(installmentDate.getMonth() + i);
-
-        const installmentInfo = `Parcela ${i + 1} de ${installments}`;
-
-        const installmentValue =
-          moveData.nature === "negative"
-            ? moveData.value / installments
-            : moveData.value;
-
-        const installmentData = {
-          ...moveData,
-          date: installmentDate.toISOString().split("T")[0],
-          installment_number: i + 1,
-          installmentInfo,
-          value: installmentValue,
-          installment_value: installmentValue,
-        };
-
-        await api.post("/moves/create", installmentData);
-      }
-
-      setMoveData(initialState);
-      alert("Movimentação criada com sucesso!");
+      const response = await api.post("/moves/add_move", move);
+      console.log(response.data);
     } catch (error) {
       console.error(error);
-      alert(`Erro ao criar movimentação.${error.message}`);
+    }
+  
+  
+      setDescription("");
+      setValue("");
+      setNature("expense");
+      setCategory("");
+      setPaymentMethod("");
+      setDate("");
+      setInstallmentInfo("");
+      setReserve(false);
+      
+    
+  };
+  
+
+  const handleNatureChange = (event) => {
+    setNature(event.target.value);
+    if (event.target.value === "income") {
+      setReserve(false);
     }
   };
 
-  const categories = [
-    "lazer",
-    "alimentação",
-    "transporte",
-    "segurança",
-    "saúde",
-    "bem-estar",
-    "estética",
-    "educação",
-    "serviços de internet e tv",
-    "presentes",
-    "mimos pessoais",
-    "utilitários do lar",
-    "equipamentos veiculares",
-    "aposta em rifas ou loterias",
-    "filhos",
-    "outros",
-  ];
+  const handleReserveChange = (event) => {
+    setReserve(event.target.checked);
+    if (event.target.checked) {
+      setNature("negative");
+      setPaymentMethod("");
+    }
+  };
 
-  if (!isUserLoggedIn()) {
-    return null;
-  }
+  const handleValueChange = (event) => {
+    const newValue = event.target.value;
+    if (reserve) {
+      const remainingValue = parseFloat(newValue) - parseFloat(value);
+      setBalanceGoals(
+        balanceGoals.map((goal) => {
+          if (goal._id === paymentMethod) {
+            return {
+              ...goal,
+              remainingValue: remainingValue.toFixed(2),
+            };
+          } else {
+            return goal;
+          }
+        })
+      );
+      setValue(newValue);
+    } else {
+      setValue(newValue);
+    }
+  };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Adicionar Movimentação</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="description">
+    <Form onSubmit={handleSubmit}>
+      <Row>
+        <Col sm={reserve ? 12 : 6}>
+          <Form.Group
+            controlId="description"
+            style={{ display: reserve ? "none" : "block" }}
+          >
             <Form.Label>Descrição</Form.Label>
             <Form.Control
               type="text"
-              name="description"
-              value={moveData.description}
-              onChange={handleChange}
-              required
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Digite uma descrição para a movimentação"
+              required={!reserve}
             />
           </Form.Group>
-
+        </Col>
+        {reserve ? null : (
+          <Col sm={6}>
+            <Form.Group controlId="nature">
+              <Form.Label>Natureza</Form.Label>
+              <Form.Control
+                as="select"
+                value={nature}
+                onChange={handleNatureChange}
+                required
+              >
+                <option value="negative">Despesa</option>
+                <option value="positive">Receita</option>
+              </Form.Control>
+            </Form.Group>
+          </Col>
+        )}
+      </Row>
+      <Row>
+        <Col sm={6}>
           <Form.Group controlId="value">
             <Form.Label>Valor</Form.Label>
             <Form.Control
               type="number"
-              name="value"
-              value={moveData.value}
-              onChange={handleChange}
+              value={value}
+              onChange={handleValueChange}
+              step="0.01"
+              placeholder="R$ 0,00"
               required
             />
           </Form.Group>
-
-          <Form.Group controlId="nature">
-            <Form.Label>Natureza</Form.Label>
-            <Form.Control
-              as="select"
-              name="nature"
-              value={moveData.nature}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Selecione a natureza</option>
-              <option value="positive">Positiva</option>
-              <option value="negative">Negativa</option>
-            </Form.Control>
-          </Form.Group>
-
-          <Form.Group controlId="category">
-            <Form.Label>Categoria</Form.Label>
-            <Form.Control
-              disabled={moveData.nature === "positive"}
-              as="select"
-              name="category"
-              value={moveData.category}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Selecione a categoria</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-
-          <Form.Group controlId="paymentMethod">
-            <Form.Label>Método de Pagamento</Form.Label>
-            <Form.Control
-              disabled={moveData.nature === "positive"}
-              as="select"
-              name="paymentMethod"
-              value={moveData.paymentMethod}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Selecione o método de pagamento</option>
-              {paymentMethods.map((method, index) => (
-                <option key={index} value={method._id}>
-                  {method.name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-
-          <Form.Group controlId="installments">
-            <Form.Label>Número de Parcelas</Form.Label>
-            <Form.Control
-              type="number"
-              name="installments"
-              value={moveData.installments}
-              onChange={handleChange}
-              min="1"
-              required
-              disabled={moveData.nature === "positive"}
+        </Col>
+        <Col sm={6}>
+          <Form.Group controlId="reserve">
+            <Form.Check
+              type="checkbox"
+              label="É uma reserva?"
+              checked={reserve}
+              onChange={handleReserveChange}
+              className="mt-4"
             />
           </Form.Group>
-
-          <Form.Group controlId="date">
-            <Form.Label>Data</Form.Label>
-            <Form.Control
-              type="date"
-              name="date"
-              value={moveData.date}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
+        </Col>
+      </Row>
+      {reserve ? (
+        <Row>
+          <Col sm={6}>
+            <Form.Group controlId="paymentMethod">
+              <Form.Label>Objetivo de Destino</Form.Label>
+              <Form.Control
+                as="select"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                required
+              >
+                <option value="">Selecione um objetivo</option>
+                {balanceGoals.map((goal) => (
+                  <option key={goal._id} value={goal._id}>
+                    {goal.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </Col>
+        </Row>
+      ) : (
+        <>
+          <Row>
+            <Col sm={6}>
+              <CategoriesInput />
+            </Col>
+            <Col sm={6}>
+              <Form.Group controlId="paymentMethod">
+                <PaymentMethodsListComponent />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col sm={8}>
+              <Form.Group controlId="date">
+                <Form.Label>Data</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col sm={4}>
+              <Form.Group controlId="installmentInfo">
+                <Form.Label>Parcela</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={installmentInfo}
+                  onChange={(e) => setInstallmentInfo(e.target.value)}
+                  placeholder="Digite informações da parcela"
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        </>
+      )}
+      <Row>
+        <Col sm={12} className="text-right mt-3">
           <Button variant="primary" type="submit">
-            Adicionar
+            {moveToEdit ? "Editar" : "Adicionar"}
           </Button>
-        </Form>
-      </Modal.Body>
-    </Modal>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 
-export default MoveForm;
+export default MovesForm;

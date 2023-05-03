@@ -1,69 +1,100 @@
 import React, { useState, useEffect } from "react";
 import { Container, Table, Button, Modal } from "react-bootstrap";
 import styled from "styled-components";
-import EditPaymentMethodForm from "./EditPaymentMethodForm";
 import { api } from "../api/axios";
+import AddPaymentMethodModal from "./AddPaymentMethodModal";
+import DeletePaymentMethodModal from "./DeletePaymentMethodModal";
+import PaymentMethodTableRow from "./PaymentMethodTableRow";
+import { useAuth } from "../context/AuthContext";
 
 const StyledContainer = styled(Container)`
   padding: 2rem;
   border-radius: 8px;
 `;
 
-const StyledTable = styled(Table)`
-  background-color: #e7dede;
-  color: #262424;
+const StyledTablestriped = styled(Table)`
+  background-color: #f3eded;
+  color: #232323;
 `;
 
 const PaymentMethodsList = () => {
+  const { currentUser } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
-  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [family, setFamily] = useState(null);
+
+  useEffect(() => {
+    const fetchFamily = async () => {
+      if (!currentUser.family) {
+        return;
+      }
+
+      try {
+        const response = await api.get(`/families?name=${currentUser.family}`);
+        console.log("Response data:", response.data);
+        setFamily(response.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchFamily();
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
+      if (!family) {
+        return;
+      }
+
       try {
-        const response = await api.get("payment_methods/payment_methods");
+        const response = await api.get(`/payment_methods?f=${family._id}`);
         console.log("Response data:", response.data);
         setPaymentMethods(response.data);
       } catch (error) {
         console.error(error);
       }
     };
-
     fetchPaymentMethods();
-  }, []);
+  }, [family]);
 
-  const handleShowModal = (paymentMethodId) => {
-    setSelectedPaymentMethodId(paymentMethodId);
-    setShowModal(true);
+  const handleShowAddModal = () => {
+    setSelectedPaymentMethod(null);
+    setShowAddModal(true);
+  };
+
+  const handleShowEditModal = (paymentMethod) => {
+    setSelectedPaymentMethod(paymentMethod);
+    setShowAddModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedPaymentMethodId(null);
+    setShowAddModal(false);
+    setSelectedPaymentMethod(null);
   };
 
-  const handleShowConfirmDeleteModal = (paymentMethodId) => {
-    setSelectedPaymentMethodId(paymentMethodId);
-    setShowConfirmDeleteModal(true);
-  };
-
-  const handleCloseConfirmDeleteModal = () => {
-    setShowConfirmDeleteModal(false);
-    setSelectedPaymentMethodId(null);
-  };
-
-  const handleDeletePaymentMethod = async () => {
-    console.log("selectedPaymentMethodId:", selectedPaymentMethodId);
+  const handleShowDeleteModal = (paymentMethod) => {
+    setSelectedPaymentMethod(paymentMethod);
+    setShowDeleteModal(true);
+    };
+    
+    const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setSelectedPaymentMethod(null);
+    };
+    
+    const handleDeletePaymentMethod = async () => {
+    console.log("selectedPaymentMethod:", selectedPaymentMethod);
+    
 
     try {
       await api.delete(
-        `payment_methods/payment_methods/${selectedPaymentMethodId}`
+        `payment_methods/payment_methods/${selectedPaymentMethod._id}`
       );
       setPaymentMethods(
         paymentMethods.filter(
-          (method) => method._id !== selectedPaymentMethodId
+          (method) => method._id !== selectedPaymentMethod._id
         )
       );
       alert("Payment method deleted successfully!");
@@ -71,134 +102,92 @@ const PaymentMethodsList = () => {
       console.error(error);
       alert("Error deleting payment method.");
     }
-    handleCloseConfirmDeleteModal();
-  };
-
-  const handleCreateOrUpdatePaymentMethod = async (paymentMethod) => {
-    if (selectedPaymentMethodId) {
-      // Update existing payment method
-      try {
-        await api.put(
-          `payment_methods/payment_methods/${selectedPaymentMethodId}`,
-          paymentMethod
-        );
-        setPaymentMethods(
-          paymentMethods.map((method) =>
-            method._id === selectedPaymentMethodId
-              ? { ...paymentMethod, _id: method._id }
-              : method
-          )
-        );
-        alert("Payment method updated successfully!");
-      } catch (error) {
-        console.error(error);
-        alert("Error updating payment method.");
-      }
+    handleCloseDeleteModal();
+    };
+    
+    const handleCreateOrUpdatePaymentMethod = async (paymentMethod) => {
+    if (selectedPaymentMethod) {
+    // Update existing payment method
+    try {
+      await api.put(
+        `payment_methods/payment_methods/${selectedPaymentMethod._id}`,
+        paymentMethod
+      );
+    setPaymentMethods(
+    paymentMethods.map((method) =>
+    method._id === selectedPaymentMethod._id
+    ? { ...paymentMethod, _id: method._id }
+    : method
+    )
+    );
+    alert("Payment method updated successfully!");
+    } catch (error) {
+    console.error(error);
+    alert("Error updating payment method.");
+    }
     } else {
-      try {
-        const response = await api.post(
-          "/payment_methods/payment_methods",
-          paymentMethod
-        );
-        setPaymentMethods([...paymentMethods, response.data]);
-        alert("Payment method created successfully!");
-      } catch (error) {
-        console.error(error);
-        alert("Error creating payment method.");
-      }
+    try {
+    const response = await api.post(
+    "/payment_methods/payment_methods",
+    paymentMethod
+    );
+    setPaymentMethods([...paymentMethods, response.data]);
+    alert("Payment method created successfully!");
+    } catch (error) {
+    console.error(error);
+    alert("Error creating payment method.");
+    }
     }
     handleCloseModal();
-  };
-  const selectedPaymentMethod = paymentMethods.find(
-    (method) => method._id === selectedPaymentMethodId
-  );
-  return (
+    };
+    
+    return (
     <StyledContainer>
-      <h2>Métodos de Pagamento</h2>
-      <StyledTable striped hover>
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Nome</th>
-            <th>Bandeira</th>
-            <th>Banco</th>
-            <th>MDC</th>
-            <th>Vencimento</th>
-            <th>Saldo</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paymentMethods.map((method) => (
-            <tr key={method._id}>
-              <td>{method.type}</td>
-              <td>{method.name}</td>
-              <td>{method.brand}</td>
-              <td>{method.bank}</td>
-              <td>{method.best_purchase_day}</td>
-              <td>{method.due_date}</td>
-              <td>{method.saldo}</td>
-              <td>
-                <Button
-                  variant="info"
-                  onClick={() => handleShowModal(method._id)}
-                >
-                  Editar
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => handleShowConfirmDeleteModal(method._id)}
-                >
-                  Deletar
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </StyledTable>
-      <Button variant="success" onClick={() => handleShowModal(null)}>
-        Adicionar Método de Pagamento
-      </Button>
+    <h2>Métodos de Pagamento</h2>
+    <StyledTablestriped hover>
+    <thead>
+    <tr>
+    <th>Tipo</th>
+    <th>Nome</th>
+    <th>Bandeira</th>
+    <th>Banco</th>
+    <th>MDC</th>
+    <th>Vencimento</th>
+    <th>Saldo</th>
+    <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    {paymentMethods.map((method) => (
+    <PaymentMethodTableRow
+               key={method._id}
+               paymentMethod={method}
+               handleShowEditModal={handleShowEditModal}
+               handleShowDeleteModal={handleShowDeleteModal}
+             />
+    ))}
+    </tbody>
+    </StyledTablestriped>
+    <Button variant="success" onClick={handleShowAddModal}>
+    Adicionar Método de Pagamento
+    </Button>
+    
 
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {selectedPaymentMethodId
-              ? "Edit Payment Method"
-              : "Add Payment Method"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <EditPaymentMethodForm
-            paymentMethod={selectedPaymentMethod} // Pass the selected payment method
-            onSubmit={handleCreateOrUpdatePaymentMethod}
-          />
-        </Modal.Body>
-      </Modal>
-
-      <Modal
-        show={showConfirmDeleteModal}
-        onHide={handleCloseConfirmDeleteModal}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar deleção</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Tem certeza que deseja apagar esse método de pagamento?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseConfirmDeleteModal}>
-            {" "}
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDeletePaymentMethod}>
-            Deletar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <AddPaymentMethodModal
+        show={showAddModal}
+        handleCloseModal={handleCloseModal}
+        handleCreateOrUpdatePaymentMethod={handleCreateOrUpdatePaymentMethod}
+        selectedPaymentMethod={selectedPaymentMethod}
+      />
+    
+      <DeletePaymentMethodModal
+        show={showDeleteModal}
+        handleCloseModal={handleCloseDeleteModal}
+        handleDeletePaymentMethod={handleDeletePaymentMethod}
+        selectedPaymentMethod={selectedPaymentMethod}
+      />
     </StyledContainer>
-  );
-};
-
-export default PaymentMethodsList;
-
+    );
+    };
+    
+    export default PaymentMethodsList;

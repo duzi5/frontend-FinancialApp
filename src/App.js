@@ -2,7 +2,7 @@ import Dashboard from "./pages/Metas";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import Menu from "./components/Menu";
+import Sidebar from "./components/Sidebar";
 import LoginPage from "./pages/LoginPage";
 import Dashboard2 from "./pages/Dashboard";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -32,7 +32,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        <Menu />
+        <Sidebar/>
         <Routes>
           <Route element={<HomePage />} path="/" />
           <Route element={<LoginPage />} path="/login" />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Container, Form, Col, Button } from "react-bootstrap";
-import MoveList from "./MoveList";
+import { Container, Form, Col, Button, Row } from "react-bootstrap";
+import { MoveList } from "./MoveList";
 import { api } from "../api/axios";
 
 const StatementPage = () => {
@@ -10,8 +10,11 @@ const StatementPage = () => {
   const [monthOptions, setMonthOptions] = useState([]);
 
   useEffect(() => {
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    setReferenceMonth(currentMonth);
+    const currentMonth = new Date().toLocaleDateString("pt-BR", {
+        year: "numeric",
+        month: "2-digit",
+      }).replace("/", "-");
+    setReferenceMonth(currentMonth.replace("/", "-"));
     setSelectedMonth(currentMonth);
 
     const fetchMonthOptions = async () => {
@@ -32,14 +35,23 @@ const StatementPage = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setReferenceMonth(selectedMonth);
+    setReferenceMonth(selectedMonth.replace("/", "-"));
+    console.log(referenceMonth)
+  };
+
+  const handleEdit = (move) => {
+    // Lógica para editar a movimentação selecionada
+  };
+
+  const handleDelete = (move) => {
+    // Lógica para deletar a movimentação selecionada
   };
 
   return (
     <Container>
       <h1>Extrato Mensal</h1>
       <Form onSubmit={handleSubmit}>
-        <Form.Row className="align-items-center">
+        <Row className="align-items-end">
           <Col sm={3}>
             <Form.Label htmlFor="monthSelector" srOnly>
               Mês de Referência
@@ -61,9 +73,9 @@ const StatementPage = () => {
           <Col xs="auto">
             <Button type="submit">Selecionar Mês</Button>
           </Col>
-        </Form.Row>
+        </Row>
       </Form>
-      {/* <MoveList referenceMonth={referenceMonth} /> */}
+      <MoveList referenceMonth={referenceMonth} handleEdit={handleEdit} handleDelete={handleDelete} />
     </Container>
   );
 };

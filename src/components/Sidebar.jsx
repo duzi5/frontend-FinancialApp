@@ -7,10 +7,14 @@ import {
   FaCreditCard,
   FaSignOutAlt,
   FaFlag,
+  FaExchangeAlt,
 } from "react-icons/fa";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import MoveForm from '../pages/MovesForm';
+import { Modal, Button } from "react-bootstrap";
+import GoalForm from "../pages/GoalForm";
+import MovesForm from "../pages/MovesForm";
+
 const StyledButton = styled.button`
   background: none;
   border: none;
@@ -70,11 +74,20 @@ const StyledLink = styled(NavLink)`
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const [showGoalForm, setShowGoalForm] = useState(false);
   const [showMoveForm, setShowMoveForm] = useState(false);
 
   const handleLogout = () => {
     localStorage.setItem("access_token", "");
     navigate("/login");
+  };
+
+  const handleShowGoalForm = () => {
+    setShowGoalForm(true);
+  };
+
+  const handleCloseGoalForm = () => {
+    setShowGoalForm(false);
   };
 
   const handleShowMoveForm = () => {
@@ -90,23 +103,51 @@ const Sidebar = () => {
       <StyledLink to="/dashboard" activeClassName="active">
         <FaTachometerAlt />
       </StyledLink>
-      <StyledButton onClick={handleShowMoveForm}>
-        <FaPlus />
+      <StyledButton onClick={handleShowGoalForm}>
+        <FaFlag />
       </StyledButton>
-      <MoveForm show={showMoveForm} handleClose={handleCloseMoveForm} />
       <StyledLink to="/targets" activeClassName="active">
         <FaBullseye />
       </StyledLink>
+
       <StyledLink to="/payment-methods-list" activeClassName="active">
         <FaCreditCard />
       </StyledLink>
-      <StyledLink to="/goals-page" activeClassName="active">
-        <FaFlag />
-      </StyledLink>
+      <StyledButton onClick={handleShowMoveForm}>
+        <FaExchangeAlt />
+      </StyledButton>
       <StyledButton onClick={handleLogout}>
         <FaSignOutAlt />
       </StyledButton>
-    </StyledNav>
-  );
+
+      <Modal show={showGoalForm} onHide={handleCloseGoalForm}>
+        <Modal.Header closeButton>
+          <Modal.Title>Cadastrar novo objetivo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <GoalForm handleClose={handleCloseGoalForm} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseGoalForm}>
+Fechar
+</Button>
+</Modal.Footer>
+</Modal>
+  <Modal show={showMoveForm} onHide={handleCloseMoveForm}>
+    <Modal.Header closeButton>
+      <Modal.Title>Cadastrar nova movimentação</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <MovesForm handleClose={handleCloseMoveForm} />
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={handleCloseMoveForm}>
+        Fechar
+      </Button>
+    </Modal.Footer>
+  </Modal>
+</StyledNav>
+);
 };
+
 export default Sidebar;
