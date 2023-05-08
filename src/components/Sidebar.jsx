@@ -12,7 +12,7 @@ import {
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
-import GoalForm from "../pages/GoalForm";
+
 import MovesForm from "../pages/MovesForm";
 
 const StyledButton = styled.button`
@@ -82,15 +82,7 @@ const Sidebar = () => {
     navigate("/login");
   };
 
-  const handleShowGoalForm = () => {
-    setShowGoalForm(true);
-  };
-
-  const handleCloseGoalForm = () => {
-    setShowGoalForm(false);
-  };
-
-  const handleShowMoveForm = () => {
+ const handleShowMoveForm = () => {
     setShowMoveForm(true);
   };
 
@@ -103,10 +95,8 @@ const Sidebar = () => {
       <StyledLink to="/dashboard" activeClassName="active">
         <FaTachometerAlt />
       </StyledLink>
-      <StyledButton onClick={handleShowGoalForm}>
-        <FaFlag />
-      </StyledButton>
-      <StyledLink to="/targets" activeClassName="active">
+    
+      <StyledLink to="/goals-page" activeClassName="active">
         <FaBullseye />
       </StyledLink>
 
@@ -120,19 +110,7 @@ const Sidebar = () => {
         <FaSignOutAlt />
       </StyledButton>
 
-      <Modal show={showGoalForm} onHide={handleCloseGoalForm}>
-        <Modal.Header closeButton>
-          <Modal.Title>Cadastrar novo objetivo</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <GoalForm handleClose={handleCloseGoalForm} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseGoalForm}>
-Fechar
-</Button>
-</Modal.Footer>
-</Modal>
+     
   <Modal show={showMoveForm} onHide={handleCloseMoveForm}>
     <Modal.Header closeButton>
       <Modal.Title>Cadastrar nova movimentação</Modal.Title>

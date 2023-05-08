@@ -3,6 +3,9 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 import { useMutation } from "react-query";
 import { api } from "../api/axios";
+import CurrencyFormat from 'react-currency-format';
+
+
 
 const GoalsModal = () => {
   const [show, setShow] = useState(false);
@@ -10,15 +13,15 @@ const GoalsModal = () => {
     title: "",
     description: "",
     dueDate: "",
-    priority: "Low",
-    status: "Not Started",
+    priority: "Baixa",
+    status: "Não Iniciado",
   });
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const addGoal = async (goal) => {
-    const { data } = await api.post("/goals", goal, {
+    const { data } = await api.post("/goals/goals", goal, {
       headers: { "Content-Type": "application/json" },
     });
     return data;
@@ -29,7 +32,7 @@ const GoalsModal = () => {
       handleClose();
     },
     onError: (error) => {
-      console.error("Error adding goal:", error);
+      console.error("Erro ao adicionar objetivo:", error);
     },
   });
 
@@ -41,38 +44,37 @@ const GoalsModal = () => {
   return (
     <>
       <Button variant="dark" onClick={handleShow}>
-        <FaPlus /> Add Goal
+        <FaPlus /> Adicionar Objetivo
       </Button>
-
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Add New Goal</Modal.Title>
+          <Modal.Title>Adicionar novo objetivo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group>
-              <Form.Label>Title</Form.Label>{" "}
+              <Form.Label>Título</Form.Label>{" "}
               <Form.Control
                 type="text"
                 name="title"
                 value={goal.title}
                 onChange={handleChange}
-                placeholder="Enter goal title"
+                placeholder="Insira o título do objetivo"
               />
             </Form.Group>
             <Form.Group>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Descrição</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
                 name="description"
                 value={goal.description}
                 onChange={handleChange}
-                placeholder="Enter goal description"
+                placeholder="Insira a descrição do objetivo"
               />
             </Form.Group>
             <Form.Group>
-              <Form.Label>Due Date</Form.Label>
+              <Form.Label>Data de Vencimento</Form.Label>
               <Form.Control
                 type="date"
                 name="dueDate"
@@ -81,39 +83,37 @@ const GoalsModal = () => {
               />
             </Form.Group>
             <Form.Group>
-              <Form.Label>Priority</Form.Label>
+              <Form.Label>Prioridade</Form.Label>
               <Form.Control
                 as="select"
                 name="priority"
                 value={goal.priority}
                 onChange={handleChange}
               >
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
+                <option>Baixa</option>
+                <option>Média</option>
+                <option>Alta</option>
               </Form.Control>
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                as="select"
-                name="status"
-                value={goal.status}
-                onChange={handleChange}
-              >
-                <option>Not Started</option>
-                <option>In Progress</option>
-                <option>Completed</option>
-              </Form.Control>
-            </Form.Group>
+         <Form.Group>
+          <Form.Label>Total almejado</Form.Label>
+          <Form.Control
+              name="targetValue"
+              value={goal.targetValue}
+              onChange={handleChange}
+              placeholder="Insira o valor"
+            >
+           
+            </Form.Control>
+         </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Close
+            Fechar
           </Button>
           <Button variant="success" onClick={() => mutation.mutate(goal)}>
-            Save Goal
+            Salvar Objetivo
           </Button>
         </Modal.Footer>
       </Modal>

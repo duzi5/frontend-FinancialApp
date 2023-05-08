@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { api } from "../api/axios";
 import PaymentMethodsListComponent from "./PaymentMethodsListComponent";
-import CategoriesInput from "./CategoriesInput";
+import ExpenseCategoriesInput from "./ExpenseCategoryInput";
 
 export const MovesForm = ({ onSubmit, moveToEdit }) => {
   const [description, setDescription] = useState("");
@@ -11,9 +11,18 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
   const [category, setCategory] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [date, setDate] = useState("");
-  const [installmentInfo, setInstallmentInfo] = useState("");
+  const [installments, setInstallments] = useState("");
   const [reserve, setReserve] = useState(false);
   const [balanceGoals, setBalanceGoals] = useState([]);
+
+  const handleCategoryChange = (value) => {
+    setCategory(value);
+  };
+  const handlePaymentChange = (event) => {
+    const selectedOption = event.target.selectedOptions[0];
+    const paymentMethodId = selectedOption.value;
+    setPaymentMethod(paymentMethodId.toString());
+  };
 
   useEffect(() => {
     const fetchBalanceGoals = async () => {
@@ -36,14 +45,15 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
       setCategory(moveToEdit.category);
       setPaymentMethod(moveToEdit.paymentMethod);
       setDate(moveToEdit.date.slice(0, 10));
-      setInstallmentInfo(moveToEdit.installmentInfo);
+      setInstallments(moveToEdit.installments);
       setReserve(moveToEdit.reserve);
     }
   }, [moveToEdit]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+    console.log(category);
+    console.log(paymentMethod);
     const move = {
       description,
       value,
@@ -51,31 +61,25 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
       category,
       paymentMethod,
       date,
-      installmentInfo,
+      installments,
       reserve,
     };
 
-    
     try {
       const response = await api.post("/moves/add_move", move);
       console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  
-  
       setDescription("");
       setValue("");
-      setNature("expense");
+      setNature("negative");
       setCategory("");
       setPaymentMethod("");
       setDate("");
-      setInstallmentInfo("");
+      setInstallments("");
       setReserve(false);
-      
-    
+    } catch (error) {
+      console.error(error);
+    }
   };
-  
 
   const handleNatureChange = (event) => {
     setNature(event.target.value);
@@ -157,7 +161,7 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
               type="number"
               value={value}
               onChange={handleValueChange}
-              step="0.01"
+              step="1.00"
               placeholder="R$ 0,00"
               required
             />
@@ -175,6 +179,7 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
           </Form.Group>
         </Col>
       </Row>
+
       {reserve ? (
         <Row>
           <Col sm={6}>
@@ -195,16 +200,21 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
               </Form.Control>
             </Form.Group>
           </Col>
+          <Col sm={6}>
+            <Form.Group controlId="paymentMethod">
+              <PaymentMethodsListComponent onChange={handlePaymentChange} />
+            </Form.Group>
+          </Col>
         </Row>
       ) : (
         <>
           <Row>
             <Col sm={6}>
-              <CategoriesInput />
+              <ExpenseCategoriesInput onChange={handleCategoryChange} />
             </Col>
             <Col sm={6}>
               <Form.Group controlId="paymentMethod">
-                <PaymentMethodsListComponent />
+                <PaymentMethodsListComponent onChange={handlePaymentChange} />
               </Form.Group>
             </Col>
           </Row>
@@ -222,12 +232,12 @@ export const MovesForm = ({ onSubmit, moveToEdit }) => {
             </Col>
             <Col sm={4}>
               <Form.Group controlId="installmentInfo">
-                <Form.Label>Parcela</Form.Label>
+                <Form.Label>Parcelas</Form.Label>
                 <Form.Control
                   type="number"
-                  value={installmentInfo}
-                  onChange={(e) => setInstallmentInfo(e.target.value)}
-                  placeholder="Digite informações da parcela"
+                  value={installments}
+                  onChange={(e) => setInstallments(e.target.value)}
+                  placeholder="Digite o número da parcela"
                   required
                 />
               </Form.Group>

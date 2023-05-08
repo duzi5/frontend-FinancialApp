@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { BsPencil, BsTrash } from "react-icons/bs";
 
 const StyledTable = styled(Table)`
+    margin: 20px;
   thead {
     background-color: #8B008B;
     color: #FFFFFF;
@@ -24,6 +25,7 @@ const IconButton = styled.button`
   background-color: transparent;
   border: none;
   padding: 0;
+  margin: 20px;
   color: ${(props) => (props.delete ? "#FF0000" : "#8B008B")};
   cursor: pointer;
 
