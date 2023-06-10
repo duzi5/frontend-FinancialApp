@@ -1,154 +1,272 @@
-import React, { useState } from "react";
-import { addPaymentMethod } from "../api/axios";
-import { Modal, Form, Button } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Modal, Form, Button, Alert } from "react-bootstrap";
+import styled, { keyframes } from "styled-components";
+import { api } from "../api/axios";
+import { useRecoilState } from "recoil";
+import { bankInputState } from "../atoms/paymentMethodsAtoms";
+import NumberSelector from "./payment_methods/NumberSelector";
+import banksList from "./payment_methods/banksList";
+import Bandeira from "./payment_methods/Bandeira";
+import PaymentTypeInput from "./payment_methods/PaymentTypeInput";
+import LastFourDigitsInput from "./payment_methods/LastFourDigitsInput";
+import Select from "react-select";
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+`;
+
+const StyledModal = styled(Modal)`
+  .modal-content {
+    background-color: #f8f9fa;
+    opacity: 0;
+    animation: ${fadeIn} 0.5s ease-in-out forwards;
+  }
+`;
 
 const AddPaymentMethod = ({ show, onHide }) => {
   const [paymentMethodData, setPaymentMethodData] = useState({
     type: "",
-    name: "",
     brand: "",
     bank: "",
-    isDebit: false,
+    lastFourDigits: "",
     best_purchase_day: "",
     due_date: "",
   });
-  const [isValid, setIsValid] = useState(true);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertVariant, setAlertVariant] = useState("");
+  const [bankInput, setBankInput] = useRecoilState(bankInputState);
+  const [selectedBank, setSelectedBank] = useState(null);
+
+  const handleBankSelect = (bank) => {
+    setPaymentMethodData((prevData) => ({
+      ...prevData,
+      bank: bank.name,
+    }));
+    setSelectedBank(bank);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPaymentMethodData((prev) => ({
-      ...prev,
+    setPaymentMethodData((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
   };
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setPaymentMethodData((prev) => ({
-      ...prev,
-      [name]: checked,
+  const handlePaymentTypeChange = (type) => {
+    setPaymentMethodData((prevData) => ({
+      ...prevData,
+      type: type,
     }));
   };
 
-  const validateForm = () => {
-    const bestPurchaseDay = parseInt(paymentMethodData.best_purchase_day);
-    if (bestPurchaseDay < 1 || bestPurchaseDay > 31 || isNaN(bestPurchaseDay)) {
-      setIsValid(false);
+  const handleDebitCreditSelect = (checked) => {
+    if (checked) {
+      setPaymentMethodData((prevData) => ({
+        ...prevData,
+        type: "debit_credit",
+      }));
     } else {
-      setIsValid(true);
+      setPaymentMethodData((prevData) => ({
+        ...prevData,
+        type: "",
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    validateForm();
 
     try {
-      const response = await addPaymentMethod(paymentMethodData);
-      console.log(response.message);
-      onHide();
+      if (paymentMethodData.type === "debit_credit") {
+        const debitPaymentMethodData = {
+          ...paymentMethodData,
+          type: "debit",
+        };
+
+        const creditPaymentMethodData = {
+          ...paymentMethodData,
+          type: "credit",
+        };
+
+        await Promise.all([
+          api.post("/payment_methods/payment_methods", debitPaymentMethodData),
+          api.post("/payment_methods/payment_methods", creditPaymentMethodData),
+        ]);
+
+        setAlertMessage("Métodos de pagamento adicionados com sucesso!");
+      } else {
+        await api.post("/payment_methods/payment_methods", paymentMethodData);
+        setAlertMessage("Método de pagamento adicionado com sucesso!");
+      }
+
+      setAlertVariant("success");
+      setPaymentMethodData({
+        type: "",
+        brand: "",
+        bank: "",
+        lastFourDigits: "",
+        best_purchase_day: "",
+        due_date: "",
+      });
     } catch (error) {
-      console.error("Erro ao adicionar método de pagamento:", error);
+      setAlertMessage("Erro ao adicionar método(s) de pagamento.");
+      setAlertVariant("danger");
+      console.error("Error adding payment method:", error);
     }
   };
 
+  const validateForm = () => {
+    if (
+      paymentMethodData.lastFourDigits.length === 4 &&
+      paymentMethodData.type !== "" &&
+      paymentMethodData.bank !== "" &&
+      ((paymentMethodData.type === "debit" &&
+        paymentMethodData.best_purchase_day >= 1 &&
+        paymentMethodData.best_purchase_day <= 30 &&
+        paymentMethodData.due_date >= 1 &&
+        paymentMethodData.due_date <= 30) ||
+        paymentMethodData.type === "credit" ||
+        paymentMethodData.type === "debit_credit")
+    ) {
+      handleSubmit();
+    }
+  };
+
+  useEffect(() => {
+    if (bankInput) {
+      setPaymentMethodData((prevData) => ({
+        ...prevData,
+        bank: bankInput.name,
+      }));
+      setSelectedBank(bankInput);
+    }
+  }, [bankInput]);
+
   return (
-    <Modal show={show} onHide={onHide} backdrop="static" keyboard={false}>
+
+    <StyledModal
+      show={show}
+      onHide={onHide}
+      backdrop="static"
+      keyboard={false}
+      centered
+    >
       <Modal.Header closeButton>
-        <Modal.Title>Adicione um método de pagamento</Modal.Title>
+        <Modal.Title>Adicionar Método de Pagamento</Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ backdropFilter: "blur(5px)" }}>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formType">
-            <Form.Label>Tipo</Form.Label>
-            <Form.Control
-              type="text"
-              name="type"
+      <Modal.Body>
+        <Alert variant={alertVariant} show={alertMessage !== ""}>
+          {alertMessage}
+        </Alert>
+        <Form onSubmit={validateForm}>
+          <LastFourDigitsInput
+            value={paymentMethodData.lastFourDigits}
+            onChange={(value) =>
+              setPaymentMethodData((prevData) => ({
+                ...prevData,
+                lastFourDigits: value,
+              }))
+            }
+          />
+
+          
+            <PaymentTypeInput
               value={paymentMethodData.type}
-              onChange={handleChange}
-              required
+              onChange={handlePaymentTypeChange}
+              onDebitCreditSelect={handleDebitCreditSelect}
             />
-          </Form.Group>
-          <Form.Group controlId="formName">
-            <Form.Label>Nome</Form.Label>
-            <Form.Control
-              type="text"
-              name="name"
-              value={paymentMethodData.name}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-          <Form.Group controlId="formBrand">
-            <Form.Label>Bandeira</Form.Label>
-            <Form.Control
-              type="text"
-              name="brand"
-              value={paymentMethodData.brand}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
+       
+
+          {paymentMethodData.type === "debit" && (
+            <Form.Group controlId="formBrand">
+              <Form.Label>Bandeira</Form.Label>
+              <Bandeira
+                value={paymentMethodData.brand}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          )}
+
           <Form.Group controlId="formBank">
             <Form.Label>Banco</Form.Label>
-            <Form.Control
-              type="text"
-              name="bank"
-              value={paymentMethodData.bank}
-              onChange={handleChange}
-              required
+            <Select
+              options={banksList}
+              value={selectedBank}
+              onChange={handleBankSelect}
+              getOptionLabel={(option) => option.name}
+              getOptionValue={(option) => option.name}
+              placeholder="Selecione um banco"
+              isClearable
             />
           </Form.Group>
-          <Form.Group controlId="formIsDebit">
-            <Form.Check
-              type="checkbox"
-              label="É um cartão de débito?"
-              name="isDebit"
-              checked={paymentMethodData.isDebit}
-              onChange={handleCheckboxChange}
-            />
-          </Form.Group>
-          {!paymentMethodData.isDebit && (
+
+          {(paymentMethodData.type === "credit" ||
+            paymentMethodData.type === "debit_credit") && (
             <>
+              <Form.Group className="mt-2" controlId="formBandeira">
+                <Form.Label>Bandeira</Form.Label>
+                <Bandeira
+                  value={paymentMethodData.brand}
+                  onChange={(value) =>
+                    setPaymentMethodData((prevData) => ({
+                      ...prevData,
+                      brand: value,
+                    }))
+                  }
+                />
+              </Form.Group>
+
               <Form.Group controlId="formBestPurchaseDay">
-                <Form.Label>Melhor dia de compra</Form.Label>
-                <Form.Control
-              type="number"
-              name="best_purchase_day"
-              value={paymentMethodData.best_purchase_day}
-              onChange={handleChange}
-              required
-              isInvalid={!isValid}
-            />
-            <Form.Control.Feedback type="invalid">
-              O melhor dia de compra deve ser um número entre 1 e 31.
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group controlId="formDueDate">
-            <Form.Label>Vencimento</Form.Label>
-            <Form.Control
-              type="number"
-              name="due_date"
-              value={paymentMethodData.due_date}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-        </>
-      )}
-      <Button type="submit" className="mt-3">Adicionar</Button>
-    </Form>
-  </Modal.Body>
-</Modal>
-);
+                <Form.Label>Melhor dia de compra (1-30)</Form.Label>
+                <NumberSelector
+                  value={paymentMethodData.best_purchase_day}
+                  onChange={(value) =>
+                    setPaymentMethodData((prevData) => ({
+                      ...prevData,
+                      best_purchase_day: value,
+                    }))
+                  }
+                  min={1}
+                  max={30}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="formDueDate">
+                <Form.Label>Vencimento (1-30)</Form.Label>
+                <NumberSelector
+                  value={paymentMethodData.due_date}
+                  onChange={(value) =>
+                    setPaymentMethodData((prevData) => ({
+                      ...prevData,
+                      due_date: value,
+                    }))
+                  }
+                  min={1}
+                  max={30}
+                />
+              </Form.Group>
+            </>
+          )}
+
+          <Modal.Footer>
+            <Button variant="secondary" onClick={onHide}>
+              Fechar
+            </Button>
+            <Button variant="primary" type="submit">
+              Adicionar
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal.Body>
+    </StyledModal>
+  );
 };
 
 export default AddPaymentMethod;
-
-
-
-
-
-
-
-

@@ -189,7 +189,7 @@ const UserForm = () => {
             required
           >
             <option value="">Selecione uma família</option>
-            {families.map((family) => (
+            {families?.map((family) => (
               <option key={family.id} value={family.id}>
                 {family.name}
               </option>

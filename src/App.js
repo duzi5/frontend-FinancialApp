@@ -13,12 +13,16 @@ import Metas from "./pages/Metas";
 import AdminUserPage from "./pages/EditableUserList";
 import { api } from "./api/axios";
 import Logout from "./pages/Logout";
-import PrivateRoute from "./pages/PrivateRoute";
+import {PrivateRoute, ManagerRoute} from "./pages/PrivateRoute";
 import GoalsPage from "./pages/GoalsPage";
 import EditPaymentMethodForm from "./pages/EditPaymentMethodForm";
 import PaymentMethodsList from "./pages/PaymentMethodsList";
 import MoveList from "./pages/MoveList";
 import StatementPage from "./pages/StatementPage";
+import  PaymentMethodsPage  from './pages/payment_methods/PaymentMethodsPage';
+import {RecoilRoot} from 'recoil'
+
+
 function App() {
   const fetchUser = async () => {
     const { data } = await api.get("/api/users/", {
@@ -30,7 +34,8 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <RecoilRoot>
+      <BrowserRouter>
       <div className="App">
         <Sidebar/>
         <Routes>
@@ -47,8 +52,8 @@ function App() {
             path="/add-move"
           />
           <Route
-            element={<PrivateRoute element={<PaymentMethodsList />} />}
-            path="/payment-methods-list"
+            element={<PrivateRoute element={<PaymentMethodsPage />} />}
+            path="/payment-methods-page"
           />
           <Route
             element={<PrivateRoute element={<GoalsPage />} />}
@@ -62,10 +67,15 @@ function App() {
             element={<PrivateRoute element={<StatementPage />} />}
             path="/extrato"
           />
+          <Route
+            element={<PrivateRoute element={<StatementPage />} />}
+            path="/extrato"
+          />
           <Route element={<Logout />} path="/logout" />
         </Routes>
       </div>
     </BrowserRouter>
+    </RecoilRoot>
   );
 }
 

@@ -17,6 +17,55 @@ html{
   min-width: 100%;
 
 }
+.bandeira-img{
+  filter: grayscale(1);
+  margin-right: 10px;
+  max-width: 80px;
+  min-height:40px ;
+  object-fit: contain;
+}
+.bandeira-label.selected .bandeira-img {
+  filter: brightness(1.2); /* Efeito de cor quando selecionado */
+}
 
+.bandeira-img.hovered {
+  filter: brightness(1.2); /* Efeito de cor quando o mouse passa por cima */
+}
+@import url('https://fonts.googleapis.com/css2?family=Changa&display=swap');
 
+.bank-list{ 
+  background-color: #ddd;
+  padding: 10px;
 
+}
+.modal-transition-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.modal-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.modal-transition-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.modal-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.modal-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.modal-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
